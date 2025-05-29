@@ -1,5 +1,6 @@
 package com.bustation.mongodb.controller;
 
+import java.net.URI;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
@@ -11,55 +12,53 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.UriComponentsBuilder;
 
-import com.bustation.mongodb.model.Reserva;
+import com.bustation.mongodb.dto.ReservaDTO;
 import com.bustation.mongodb.service.ReservaService;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/reservas")
+@RequiredArgsConstructor
 public class ReservaController {
 
     private final ReservaService service;
 
-    public ReservaController(ReservaService service) {
-        this.service = service;
-    }
-
     @GetMapping
-    public List<Reserva> listarTodas() {
+    public List<ReservaDTO> listarTodas() {
         return service.findAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Reserva> buscarPorId(@PathVariable String id) {
-        return service.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @GetMapping("/viagem/{idViagem}")
-    public List<Reserva> buscarPorViagem(@PathVariable String idViagem) {
-        return service.findByViagem(idViagem);
-    }
-
-    @GetMapping("/passageiro/{idPassageiro}")
-    public List<Reserva> buscarPorPassageiro(@PathVariable String idPassageiro) {
-        return service.findByPassageiro(idPassageiro);
+    public ResponseEntity<ReservaDTO> buscarPorId(@PathVariable String id) {
+        try {
+            return ResponseEntity.ok(service.findById(id));
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PostMapping
-    public Reserva criar(@RequestBody Reserva reserva) {
-        return service.save(reserva);
+    public ResponseEntity<ReservaDTO> criar(@RequestBody ReservaDTO dto, UriComponentsBuilder uriBuilder) {
+        ReservaDTO reserva = service.save(dto);
+        URI uri = uriBuilder.path("/reservas/{id}").buildAndExpand(reserva.id()).toUri();
+        return ResponseEntity.created(uri).body(reserva);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Reserva> atualizar(@PathVariable String id, @RequestBody Reserva reserva) {
-        return ResponseEntity.ok(service.update(id, reserva));
+    public ResponseEntity<ReservaDTO> atualizar(@PathVariable String id, @RequestBody ReservaDTO dto) {
+        return ResponseEntity.ok(service.update(id, dto));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable String id) {
-        service.delete(id);
-        return ResponseEntity.noContent().build();
+        try {
+            service.delete(id);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.bustation.mongodb.controller;
 
+import java.net.URI;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
@@ -11,40 +12,42 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.UriComponentsBuilder;
 
-import com.bustation.mongodb.model.Onibus;
+import com.bustation.mongodb.dto.OnibusDTO;
 import com.bustation.mongodb.service.OnibusService;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/onibus")
+@RequiredArgsConstructor
 public class OnibusController {
 
     private final OnibusService service;
 
-    public OnibusController(OnibusService service) {
-        this.service = service;
-    }
-
     @GetMapping
-    public List<Onibus> listarTodos() {
+    public List<OnibusDTO> listarTodos() {
         return service.findAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Onibus> buscarPorId(@PathVariable String id) {
-        return service.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<OnibusDTO> buscarPorId(@PathVariable String id) {
+        OnibusDTO dto = service.findById(id);
+        return ResponseEntity.ok(dto);
     }
 
     @PostMapping
-    public Onibus criar(@RequestBody Onibus onibus) {
-        return service.save(onibus);
+    public ResponseEntity<OnibusDTO> criar(@RequestBody OnibusDTO onibus, UriComponentsBuilder uriBuilder) {
+        OnibusDTO onibusSalvo = service.save(onibus);
+        URI uri = uriBuilder.path("/onibus/{id}").buildAndExpand(onibusSalvo.id()).toUri();
+        return ResponseEntity.created(uri).body(onibusSalvo);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Onibus> atualizar(@PathVariable String id, @RequestBody Onibus onibus) {
-        return ResponseEntity.ok(service.update(id, onibus));
+    public ResponseEntity<OnibusDTO> atualizar(@PathVariable String id, @RequestBody OnibusDTO onibus) {
+        OnibusDTO atualizado = service.update(id, onibus);
+        return ResponseEntity.ok(atualizado);
     }
 
     @DeleteMapping("/{id}")

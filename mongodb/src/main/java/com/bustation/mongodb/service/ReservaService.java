@@ -1,48 +1,53 @@
 package com.bustation.mongodb.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.bustation.mongodb.dto.ReservaDTO;
+import com.bustation.mongodb.mapper.ReservaMapper;
 import com.bustation.mongodb.model.Reserva;
 import com.bustation.mongodb.repository.ReservaRepository;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class ReservaService {
 
     private final ReservaRepository repository;
+    private final ReservaMapper mapper;
 
-    public ReservaService(ReservaRepository repository) {
-        this.repository = repository;
+    public List<ReservaDTO> findAll() {
+        return repository.findAll()
+                .stream()
+                .map(mapper::toDTO)
+                .toList();
     }
 
-    public List<Reserva> findAll() {
-        return repository.findAll();
+    public ReservaDTO findById(String id) {
+        Reserva reserva = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Reserva não encontrada com id: " + id));
+        return mapper.toDTO(reserva);
     }
 
-    public Optional<Reserva> findById(String id) {
-        return repository.findById(id);
+    public ReservaDTO save(ReservaDTO dto) {
+        Reserva reserva = mapper.toEntity(dto);
+        reserva.setDataReserva(LocalDateTime.now()); // define a data da reserva como o momento atual
+        return mapper.toDTO(repository.save(reserva));
     }
 
-    public List<Reserva> findByViagem(String idViagem) {
-        return repository.findByIdViagem(idViagem);
-    }
-
-    public List<Reserva> findByPassageiro(String idPassageiro) {
-        return repository.findByIdPassageiro(idPassageiro);
-    }
-
-    public Reserva save(Reserva reserva) {
-        return repository.save(reserva);
-    }
-
-    public Reserva update(String id, Reserva atualizado) {
-        atualizado.setId(id);
-        return repository.save(atualizado);
+    public ReservaDTO update(String id, ReservaDTO dto) {
+        Reserva reserva = mapper.toEntity(dto);
+        reserva.setId(id);
+        return mapper.toDTO(repository.save(reserva));
     }
 
     public void delete(String id) {
+        if (!repository.existsById(id)) {
+            throw new RuntimeException("Reserva não encontrada com id: " + id);
+        }
         repository.deleteById(id);
     }
 }

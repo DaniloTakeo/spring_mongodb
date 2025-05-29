@@ -1,5 +1,6 @@
 package com.bustation.mongodb.controller;
 
+import java.net.URI;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
@@ -11,40 +12,40 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.UriComponentsBuilder;
 
-import com.bustation.mongodb.model.Motorista;
+import com.bustation.mongodb.dto.MotoristaDTO;
 import com.bustation.mongodb.service.MotoristaService;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/motoristas")
+@RequiredArgsConstructor
 public class MotoristaController {
 
     private final MotoristaService service;
 
-    public MotoristaController(MotoristaService service) {
-        this.service = service;
-    }
-
     @GetMapping
-    public List<Motorista> listarTodos() {
+    public List<MotoristaDTO> listarTodos() {
         return service.findAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Motorista> buscarPorId(@PathVariable String id) {
-        return service.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<MotoristaDTO> buscarPorId(@PathVariable String id) {
+        return ResponseEntity.ok(service.findById(id));
     }
 
     @PostMapping
-    public Motorista criar(@RequestBody Motorista motorista) {
-        return service.save(motorista);
+    public ResponseEntity<MotoristaDTO> criar(@RequestBody MotoristaDTO dto, UriComponentsBuilder uriBuilder) {
+        MotoristaDTO salvo = service.save(dto);
+        URI uri = uriBuilder.path("/motoristas/{id}").buildAndExpand(salvo.id()).toUri();
+        return ResponseEntity.created(uri).body(salvo);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Motorista> atualizar(@PathVariable String id, @RequestBody Motorista motorista) {
-        return ResponseEntity.ok(service.update(id, motorista));
+    public ResponseEntity<MotoristaDTO> atualizar(@PathVariable String id, @RequestBody MotoristaDTO dto) {
+        return ResponseEntity.ok(service.update(id, dto));
     }
 
     @DeleteMapping("/{id}")
