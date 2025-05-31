@@ -1,7 +1,7 @@
 package com.bustation.mongodb.service;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.bustation.mongodb.dto.OnibusDTO;
@@ -19,11 +19,9 @@ public class OnibusService {
     private final OnibusRepository repository;
     private final OnibusMapper mapper;
 
-    public List<OnibusDTO> findAll() {
-        return repository.findAll()
-                .stream()
-                .map(mapper::toDTO)
-                .toList();
+    public Page<OnibusDTO> findAll(Pageable pageable) {
+        return repository.findAll(pageable)
+                .map(mapper::toDTO);
     }
 
     public OnibusDTO findById(String id) {

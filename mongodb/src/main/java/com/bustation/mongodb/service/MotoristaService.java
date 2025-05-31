@@ -1,7 +1,7 @@
 package com.bustation.mongodb.service;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.bustation.mongodb.dto.MotoristaDTO;
@@ -19,10 +19,9 @@ public class MotoristaService {
     private final MotoristaRepository repository;
     private final MotoristaMapper mapper;
 
-    public List<MotoristaDTO> findAll() {
-        return repository.findAll().stream()
-                .map(mapper::toDTO)
-                .toList();
+    public Page<MotoristaDTO> findAll(Pageable pageable) {
+        return repository.findAll(pageable)
+                .map(mapper::toDTO);
     }
 
     public MotoristaDTO findById(String id) {

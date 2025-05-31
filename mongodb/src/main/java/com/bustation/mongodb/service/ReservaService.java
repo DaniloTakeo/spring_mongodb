@@ -1,8 +1,9 @@
 package com.bustation.mongodb.service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.bustation.mongodb.dto.ReservaDTO;
@@ -19,11 +20,9 @@ public class ReservaService {
     private final ReservaRepository repository;
     private final ReservaMapper mapper;
 
-    public List<ReservaDTO> findAll() {
-        return repository.findAll()
-                .stream()
-                .map(mapper::toDTO)
-                .toList();
+    public Page<ReservaDTO> findAll(Pageable pageable) {
+        return repository.findAll(pageable)
+                .map(mapper::toDTO);
     }
 
     public ReservaDTO findById(String id) {

@@ -1,7 +1,7 @@
 package com.bustation.mongodb.service;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.bustation.mongodb.dto.PassageiroDTO;
@@ -19,10 +19,9 @@ public class PassageiroService {
     private final PassageiroRepository repository;
     private final PassageiroMapper mapper;
 
-    public List<PassageiroDTO> findAll() {
-        return repository.findAll().stream()
-                .map(mapper::toDTO)
-                .toList();
+    public Page<PassageiroDTO> findAll(Pageable pageable) {
+        return repository.findAll(pageable)
+                .map(mapper::toDTO);
     }
 
     public PassageiroDTO findById(String id) {
