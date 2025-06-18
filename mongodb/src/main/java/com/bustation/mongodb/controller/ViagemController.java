@@ -19,6 +19,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.bustation.mongodb.dto.ViagemDTO;
 import com.bustation.mongodb.service.ViagemService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -39,14 +40,14 @@ public class ViagemController {
     }
 
     @PostMapping
-    public ResponseEntity<ViagemDTO> criar(@RequestBody ViagemDTO dto, UriComponentsBuilder uriBuilder) {
+    public ResponseEntity<ViagemDTO> criar(@RequestBody @Valid ViagemDTO dto, UriComponentsBuilder uriBuilder) {
         ViagemDTO salvo = service.save(dto);
         URI uri = uriBuilder.path("/viagens/{id}").buildAndExpand(salvo.id()).toUri();
         return ResponseEntity.created(uri).body(salvo);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ViagemDTO> atualizar(@PathVariable String id, @RequestBody ViagemDTO dto) {
+    public ResponseEntity<ViagemDTO> atualizar(@PathVariable @Valid String id, @RequestBody ViagemDTO dto) {
         return ResponseEntity.ok(service.update(id, dto));
     }
 

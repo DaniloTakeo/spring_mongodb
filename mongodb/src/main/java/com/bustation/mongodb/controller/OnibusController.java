@@ -19,6 +19,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.bustation.mongodb.dto.OnibusDTO;
 import com.bustation.mongodb.service.OnibusService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -40,14 +41,14 @@ public class OnibusController {
     }
 
     @PostMapping
-    public ResponseEntity<OnibusDTO> criar(@RequestBody OnibusDTO onibus, UriComponentsBuilder uriBuilder) {
+    public ResponseEntity<OnibusDTO> criar(@RequestBody @Valid OnibusDTO onibus, UriComponentsBuilder uriBuilder) {
         OnibusDTO onibusSalvo = service.save(onibus);
         URI uri = uriBuilder.path("/onibus/{id}").buildAndExpand(onibusSalvo.id()).toUri();
         return ResponseEntity.created(uri).body(onibusSalvo);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<OnibusDTO> atualizar(@PathVariable String id, @RequestBody OnibusDTO onibus) {
+    public ResponseEntity<OnibusDTO> atualizar(@PathVariable String id, @RequestBody @Valid OnibusDTO onibus) {
         OnibusDTO atualizado = service.update(id, onibus);
         return ResponseEntity.ok(atualizado);
     }

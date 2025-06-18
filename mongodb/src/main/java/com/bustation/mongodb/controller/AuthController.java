@@ -16,6 +16,7 @@ import com.bustation.mongodb.model.Usuario;
 import com.bustation.mongodb.repository.UsuarioRepository;
 import com.bustation.mongodb.service.AuthService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -34,7 +35,7 @@ public class AuthController {
     }
     
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody RegisterDTO dto) {
+    public ResponseEntity<String> register(@RequestBody @Valid RegisterDTO dto) {
         if (usuarioRepository.findByLogin(dto.login()).isPresent()) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Usuário já existe.");
         }
