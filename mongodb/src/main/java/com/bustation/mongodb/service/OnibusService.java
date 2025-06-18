@@ -1,5 +1,7 @@
 package com.bustation.mongodb.service;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,7 @@ public class OnibusService {
     private final OnibusRepository repository;
     private final OnibusMapper mapper;
 
+    @Cacheable(value = "onibus")
     public Page<OnibusDTO> findAll(Pageable pageable) {
         return repository.findAll(pageable)
                 .map(mapper::toDTO);
@@ -30,11 +33,13 @@ public class OnibusService {
                 .orElseThrow(() -> new ResourceNotFoundException("Ônibus com ID " + id + " não encontrado"));
     }
 
+    @CacheEvict(value = "onibus", allEntries = true)
     public OnibusDTO save(OnibusDTO onibus) {
         Onibus entity = mapper.toEntity(onibus);
         return mapper.toDTO(repository.save(entity));
     }
 
+    @CacheEvict(value = "onibus", allEntries = true)
     public OnibusDTO update(String id, OnibusDTO dto) {
         repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Ônibus com ID " + id + " não encontrado"));
@@ -45,6 +50,7 @@ public class OnibusService {
         return mapper.toDTO(repository.save(atualizado));
     }
 
+    @CacheEvict(value = "onibus", allEntries = true)
     public void delete(String id) {
         if (!repository.existsById(id)) {
             throw new ResourceNotFoundException("Ônibus com ID " + id + " não encontrado");
