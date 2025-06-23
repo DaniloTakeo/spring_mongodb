@@ -2,6 +2,8 @@ package com.bustation.mongodb.config.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -11,6 +13,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.bustation.mongodb.repository.UsuarioRepository;
+import com.bustation.mongodb.service.AutenticacaoService;
 import com.bustation.mongodb.service.JwtService;
 
 import lombok.RequiredArgsConstructor;
@@ -42,6 +45,19 @@ public class SecurityConfig {
                 )
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(new JwtFilter(jwtService, usuarioRepository), UsernamePasswordAuthenticationFilter.class)
+                .build();
+    }
+    
+    @Bean
+    @SuppressWarnings("removal")
+    public AuthenticationManager authenticationManager(
+            final HttpSecurity http,
+            final AutenticacaoService usuarioService) throws Exception {
+
+        return http.getSharedObject(AuthenticationManagerBuilder.class)
+                .userDetailsService(usuarioService)
+                .passwordEncoder(passwordEncoder())
+                .and()
                 .build();
     }
 
