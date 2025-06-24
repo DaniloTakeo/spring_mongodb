@@ -52,15 +52,12 @@ class AuthServiceTest {
 
     @Test
     void autenticarDeveRetornarTokenQuandoCredenciaisForemValidas() {
-        // Arrange
         when(repository.findByLogin("danilo")).thenReturn(Optional.of(mockUsuario));
         when(passwordEncoder.matches("123", "senhaCriptografada")).thenReturn(true);
         when(jwtService.gerarToken(mockUsuario)).thenReturn("fake-token");
 
-        // Act
         String token = authService.autenticar("danilo", "123");
 
-        // Assert
         assertEquals("fake-token", token);
         verify(jwtService).gerarToken(mockUsuario);
     }
