@@ -13,7 +13,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.bustation.mongodb.repository.UsuarioRepository;
-import com.bustation.mongodb.service.AutenticacaoService;
+import com.bustation.mongodb.service.AuthService;
 import com.bustation.mongodb.service.JwtService;
 
 import lombok.RequiredArgsConstructor;
@@ -52,10 +52,10 @@ public class SecurityConfig {
     @SuppressWarnings("removal")
     public AuthenticationManager authenticationManager(
             final HttpSecurity http,
-            final AutenticacaoService usuarioService) throws Exception {
+            final AuthService authService) throws Exception {
 
         return http.getSharedObject(AuthenticationManagerBuilder.class)
-                .userDetailsService(usuarioService)
+                .userDetailsService(authService)
                 .passwordEncoder(passwordEncoder())
                 .and()
                 .build();
