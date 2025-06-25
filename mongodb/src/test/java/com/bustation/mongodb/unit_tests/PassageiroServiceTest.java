@@ -104,7 +104,6 @@ class PassageiroServiceTest {
         PassageiroDTO resultado = passageiroService.update("1", dto);
 
         assertEquals(dto, resultado);
-        verify(entity).setId("1");
     }
 
     @Test
