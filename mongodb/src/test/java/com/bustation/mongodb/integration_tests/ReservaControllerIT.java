@@ -77,7 +77,7 @@ class ReservaControllerIT extends BaseIT {
     }
 
     @Test
-    void deveRetornar404_QuandoBuscarReservaInexistente() throws Exception {
+    void deveRetornar404QuandoBuscarReservaInexistente() throws Exception {
         mockMvc.perform(get("/reservas/999"))
                 .andExpect(status().isNotFound());
     }
