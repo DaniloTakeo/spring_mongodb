@@ -1,6 +1,7 @@
 package com.bustation.mongodb.integration_tests;
 
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -11,6 +12,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @ActiveProfiles("test")
 @SpringBootTest
 @Testcontainers
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public abstract class BaseIT {
 
     @Container
@@ -19,7 +21,6 @@ public abstract class BaseIT {
 
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {
-    	mongoContainer.start();
         registry.add("spring.data.mongodb.uri", mongoContainer::getReplicaSetUrl);
     }
 }
