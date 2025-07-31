@@ -18,21 +18,53 @@ import com.bustation.mongodb.service.JwtService;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Classe de configuração da segurança da aplicação.
+ *
+ * <p>Define as regras de autorização, gerenciamento de sessão,
+ * integração com o filtro JWT e configura os beans necessários
+ * para autenticação e criptografia de senhas.
+ *
+ * <p>Utiliza autenticação baseada em token JWT e
+ * desabilita o uso de sessões com estado.
+ */
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    /**
+     * Serviço responsável por validar e extrair informações dos tokens JWT.
+     */
     private final JwtService jwtService;
+
+    /**
+     * Repositório para acesso aos dados de usuários.
+     */
     private final UsuarioRepository usuarioRepository;
 
+    /**
+     * Define a cadeia de filtros de segurança da aplicação.
+     *
+     * <p>Desabilita o CSRF, permite acesso público
+     * a alguns endpoints (como login, Swagger e Actuator)
+     * e exige autenticação para os demais.
+     * Também configura o gerenciamento de sessão
+     * como stateless e adiciona o filtro {@link JwtFilter}
+     * antes do filtro de autenticação padrão.
+     *
+     * @param http o objeto de configuração HTTP fornecido pelo Spring Security
+     * @return a cadeia de filtros de segurança configurada
+     * @throws Exception se ocorrer erro na construção da cadeia
+     */
+    @Bean
     @SuppressWarnings("removal")
-	@Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(final HttpSecurity http)
+            throws Exception {
         return http
                 .csrf().disable()
                 .authorizeHttpRequests(auth -> auth
-                		.requestMatchers(
+                        .requestMatchers(
                                 "/auth/**",
                                 "/auth",
                                 "/v3/api-docs/**",
@@ -40,14 +72,29 @@ public class SecurityConfig {
                                 "/swagger-ui.html",
                                 "/actuator",
                                 "/actuator/**"
-                            ).permitAll()
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
-                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(new JwtFilter(jwtService, usuarioRepository), UsernamePasswordAuthenticationFilter.class)
+                .sessionManagement(sm -> sm
+                        .sessionCreationPolicy(SessionCreationPolicy
+                            .STATELESS))
+                .addFilterBefore(new JwtFilter(jwtService,
+                        usuarioRepository),
+                        UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
-    
+
+    /**
+     * Define o {@link AuthenticationManager},
+     * integrando o serviço de autenticação da aplicação
+     * com o gerenciador do Spring Security.
+     *
+     * @param http        o objeto de configuração HTTP
+     * @param authService serviço que implementa
+     * {@link org.springframework.security.core.userdetails.UserDetailsService}
+     * @return o gerenciador de autenticação configurado
+     * @throws Exception se ocorrer erro na configuração
+     */
     @Bean
     @SuppressWarnings("removal")
     public AuthenticationManager authenticationManager(
@@ -61,6 +108,13 @@ public class SecurityConfig {
                 .build();
     }
 
+    /**
+     * Define o {@link PasswordEncoder} utilizado para codificação de senhas.
+     *
+     * <p>Utiliza o algoritmo BCrypt.
+     *
+     * @return uma instância de {@link BCryptPasswordEncoder}
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
