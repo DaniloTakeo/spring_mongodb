@@ -4,6 +4,9 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 import com.bustation.mongodb.model.Motorista;
 
-public interface MotoristaRepository extends MongoRepository<Motorista, String> {
-	
+/**
+ * Repositório para operações com a entidade Motorista.
+ */
+public interface MotoristaRepository
+    extends MongoRepository<Motorista, String> {
 }
