@@ -12,29 +12,68 @@ import com.bustation.mongodb.repository.ViagemRepository;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Serviço responsável por gerenciar as operações relacionadas
+ * à entidade Viagem.
+ */
 @Service
 @RequiredArgsConstructor
 public class ViagemService {
 
+    /**
+     * Repositório para acesso aos dados de viagem.
+     */
     private final ViagemRepository repository;
+
+    /**
+     * Mapper para conversão entre entidade e DTO de viagem.
+     */
     private final ViagemMapper mapper;
 
-    public Page<ViagemDTO> findAll(Pageable pageable) {
+    /**
+     * Retorna uma página de viagens no formato DTO.
+     *
+     * @param pageable informações de paginação
+     * @return página de ViagemDTOs
+     */
+    public Page<ViagemDTO> findAll(final Pageable pageable) {
         return repository.findAll(pageable)
-                .map(mapper::toDTO);
+            .map(mapper::toDTO);
     }
 
-    public ViagemDTO findById(String id) {
+    /**
+     * Busca uma viagem pelo seu ID.
+     *
+     * @param id identificador da viagem
+     * @return DTO da viagem encontrada
+     * @throws ResourceNotFoundException se a viagem não for encontrada
+     */
+    public ViagemDTO findById(final String id) {
         return repository.findById(id)
-                .map(mapper::toDTO)
-                .orElseThrow(() -> new ResourceNotFoundException("Viagem não encontrada"));
+            .map(mapper::toDTO)
+            .orElseThrow(() -> new ResourceNotFoundException(
+                "Viagem não encontrada"));
     }
 
-    public ViagemDTO save(ViagemDTO dto) {
+    /**
+     * Salva uma nova viagem.
+     *
+     * @param dto dados da viagem a ser criada
+     * @return DTO da viagem salva
+     */
+    public ViagemDTO save(final ViagemDTO dto) {
         return mapper.toDTO(repository.save(mapper.toEntity(dto)));
     }
 
-    public ViagemDTO update(String id, ViagemDTO dto) {
+    /**
+     * Atualiza uma viagem existente.
+     *
+     * @param id  identificador da viagem
+     * @param dto dados atualizados da viagem
+     * @return DTO da viagem atualizada
+     * @throws ResourceNotFoundException se a viagem não existir
+     */
+    public ViagemDTO update(final String id, final ViagemDTO dto) {
         if (!repository.existsById(id)) {
             throw new ResourceNotFoundException("Viagem não encontrada");
         }
@@ -43,7 +82,13 @@ public class ViagemService {
         return mapper.toDTO(repository.save(entity));
     }
 
-    public void delete(String id) {
+    /**
+     * Remove uma viagem pelo seu ID.
+     *
+     * @param id identificador da viagem
+     * @throws ResourceNotFoundException se a viagem não existir
+     */
+    public void delete(final String id) {
         if (!repository.existsById(id)) {
             throw new ResourceNotFoundException("Viagem não encontrada");
         }

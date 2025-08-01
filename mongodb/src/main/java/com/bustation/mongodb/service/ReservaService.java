@@ -13,37 +13,81 @@ import com.bustation.mongodb.repository.ReservaRepository;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Serviço responsável por gerenciar as operações relacionadas
+ * à entidade Reserva.
+ */
 @Service
 @RequiredArgsConstructor
 public class ReservaService {
 
+    /**
+     * Repositório para acesso aos dados de reserva.
+     */
     private final ReservaRepository repository;
+
+    /**
+     * Mapper para conversão entre entidade e DTO de reserva.
+     */
     private final ReservaMapper mapper;
 
-    public Page<ReservaDTO> findAll(Pageable pageable) {
+    /**
+     * Retorna uma página de reservas no formato DTO.
+     *
+     * @param pageable informações de paginação
+     * @return página de ReservaDTOs
+     */
+    public Page<ReservaDTO> findAll(final Pageable pageable) {
         return repository.findAll(pageable)
-                .map(mapper::toDTO);
+            .map(mapper::toDTO);
     }
 
-    public ReservaDTO findById(String id) {
+    /**
+     * Busca uma reserva pelo seu ID.
+     *
+     * @param id identificador da reserva
+     * @return DTO da reserva encontrada
+     * @throws RuntimeException se a reserva não for encontrada
+     */
+    public ReservaDTO findById(final String id) {
         Reserva reserva = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Reserva não encontrada com id: " + id));
+            .orElseThrow(() -> new RuntimeException(
+                "Reserva não encontrada com id: " + id));
         return mapper.toDTO(reserva);
     }
 
-    public ReservaDTO save(ReservaDTO dto) {
+    /**
+     * Salva uma nova reserva com data atual.
+     *
+     * @param dto dados da reserva a ser criada
+     * @return DTO da reserva salva
+     */
+    public ReservaDTO save(final ReservaDTO dto) {
         Reserva reserva = mapper.toEntity(dto);
-        reserva.setDataReserva(LocalDateTime.now()); // define a data da reserva como o momento atual
+        reserva.setDataReserva(LocalDateTime.now());
         return mapper.toDTO(repository.save(reserva));
     }
 
-    public ReservaDTO update(String id, ReservaDTO dto) {
+    /**
+     * Atualiza uma reserva existente.
+     *
+     * @param id  identificador da reserva
+     * @param dto dados atualizados da reserva
+     * @return DTO da reserva atualizada
+     */
+    public ReservaDTO update(final String id, final ReservaDTO dto) {
         Reserva reserva = mapper.toEntity(dto);
         reserva.setId(id);
         return mapper.toDTO(repository.save(reserva));
     }
 
-    public void delete(String id) {
+    /**
+     * Remove uma reserva pelo seu ID.
+     *
+     * @param id identificador da reserva
+     * @throws RuntimeException se a reserva não for encontrada
+     */
+    public void delete(final String id) {
         if (!repository.existsById(id)) {
             throw new RuntimeException("Reserva não encontrada com id: " + id);
         }

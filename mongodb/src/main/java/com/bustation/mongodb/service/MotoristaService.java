@@ -12,29 +12,69 @@ import com.bustation.mongodb.repository.MotoristaRepository;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Serviço responsável pela lógica de negócios relacionada à entidade {@link
+ * Motorista}.
+ */
 @Service
 @RequiredArgsConstructor
 public class MotoristaService {
 
+    /**
+     * Repositório para acesso a dados da entidade Motorista.
+     */
     private final MotoristaRepository repository;
+
+    /**
+     * Mapper para converter entre entidade Motorista e MotoristaDTO.
+     */
     private final MotoristaMapper mapper;
 
-    public Page<MotoristaDTO> findAll(Pageable pageable) {
+    /**
+     * Retorna uma página de motoristas no formato DTO.
+     *
+     * @param pageable as informações de paginação
+     * @return página de {@link MotoristaDTO}
+     */
+    public Page<MotoristaDTO> findAll(final Pageable pageable) {
         return repository.findAll(pageable)
-                .map(mapper::toDTO);
+            .map(mapper::toDTO);
     }
 
-    public MotoristaDTO findById(String id) {
+    /**
+     * Busca um motorista por ID.
+     *
+     * @param id o ID do motorista
+     * @return o motorista encontrado no formato DTO
+     * @throws ResourceNotFoundException se o motorista não for encontrado
+     */
+    public MotoristaDTO findById(final String id) {
         return repository.findById(id)
-                .map(mapper::toDTO)
-                .orElseThrow(() -> new ResourceNotFoundException("Motorista não encontrado"));
+            .map(mapper::toDTO)
+            .orElseThrow(
+                () -> new ResourceNotFoundException("Motorista não"
+                        + " encontrado"));
     }
 
-    public MotoristaDTO save(MotoristaDTO dto) {
+    /**
+     * Salva um novo motorista no banco de dados.
+     *
+     * @param dto o DTO do motorista a ser salvo
+     * @return o motorista salvo no formato DTO
+     */
+    public MotoristaDTO save(final MotoristaDTO dto) {
         return mapper.toDTO(repository.save(mapper.toEntity(dto)));
     }
 
-    public MotoristaDTO update(String id, MotoristaDTO dto) {
+    /**
+     * Atualiza um motorista existente com base no ID.
+     *
+     * @param id o ID do motorista a ser atualizado
+     * @param dto os dados atualizados do motorista
+     * @return o motorista atualizado no formato DTO
+     * @throws ResourceNotFoundException se o motorista não for encontrado
+     */
+    public MotoristaDTO update(final String id, final MotoristaDTO dto) {
         if (!repository.existsById(id)) {
             throw new ResourceNotFoundException("Motorista não encontrado");
         }
@@ -43,7 +83,13 @@ public class MotoristaService {
         return mapper.toDTO(repository.save(entity));
     }
 
-    public void delete(String id) {
+    /**
+     * Exclui um motorista com base no ID.
+     *
+     * @param id o ID do motorista
+     * @throws ResourceNotFoundException se o motorista não for encontrado
+     */
+    public void delete(final String id) {
         if (!repository.existsById(id)) {
             throw new ResourceNotFoundException("Motorista não encontrado");
         }
