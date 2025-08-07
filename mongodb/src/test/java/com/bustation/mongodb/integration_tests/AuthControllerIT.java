@@ -1,5 +1,6 @@
 package com.bustation.mongodb.integration_tests;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -106,6 +107,58 @@ class AuthControllerIT extends BaseIT {
                 {
                     "login": "usuario_erro",
                     "senha": "errada"
+                }
+                """;
+
+        mockMvc.perform(post("/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isUnauthorized());
+    }
+    
+    @Test
+    @Order(5)
+    void deveRegistrarUsuarioComRoleDefaultQuandoNaoInformado() throws Exception {
+        String json = """
+                {
+                    "login": "usuario_sem_role",
+                    "senha": "senha123"
+                }
+                """;
+
+        mockMvc.perform(post("/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isCreated())
+                .andExpect(content().string("Usuário cadastrado com sucesso."));
+
+        Usuario salvo = usuarioRepository.findByLogin("usuario_sem_role").orElseThrow();
+        assertEquals("ROLE_USER", salvo.getRole());
+    }
+    
+    @Test
+    @Order(6)
+    void deveRetornarBadRequestAoRegistrarComCamposInvalidos() throws Exception {
+        String json = """
+                {
+                    "login": "",
+                    "senha": ""
+                }
+                """;
+
+        mockMvc.perform(post("/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isBadRequest());
+    }
+    
+    @Test
+    @Order(7)
+    void deveRetornarUnauthorizedQuandoUsuarioNaoExiste() throws Exception {
+        String json = """
+                {
+                    "login": "inexistente",
+                    "senha": "qualquer"
                 }
                 """;
 
