@@ -8,11 +8,15 @@ import java.time.LocalDateTime;
 
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import com.bustation.mongodb.dto.ReservaDTO;
 import com.bustation.mongodb.model.Reserva;
 
-public class ReservaMapperTest {
+@SpringBootTest
+@ActiveProfiles("test")
+class ReservaMapperTest {
 
     private final ReservaMapper mapper = Mappers.getMapper(ReservaMapper.class);
 

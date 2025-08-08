@@ -6,11 +6,15 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import com.bustation.mongodb.dto.PassageiroDTO;
 import com.bustation.mongodb.model.Passageiro;
 
-public class PassageiroMapperTest {
+@SpringBootTest
+@ActiveProfiles("test")
+class PassageiroMapperTest {
 
     private final PassageiroMapper mapper = Mappers.getMapper(PassageiroMapper.class);
 

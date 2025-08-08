@@ -8,11 +8,15 @@ import java.time.LocalDateTime;
 
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import com.bustation.mongodb.dto.ViagemDTO;
 import com.bustation.mongodb.model.Viagem;
 
-public class ViagemMapperTest {
+@SpringBootTest
+@ActiveProfiles("test")
+class ViagemMapperTest {
 
     private final ViagemMapper mapper = Mappers.getMapper(ViagemMapper.class);
 

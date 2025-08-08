@@ -7,11 +7,13 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import com.bustation.mongodb.dto.OnibusDTO;
 import com.bustation.mongodb.model.Onibus;
 
 @SpringBootTest
+@ActiveProfiles("test")
 class OnibusMapperTest {
 
     @Autowired
