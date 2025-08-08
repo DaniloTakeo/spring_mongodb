@@ -80,10 +80,10 @@ public class JwtFilter extends OncePerRequestFilter {
 
         String path = request.getServletPath();
 
-        if (path.startsWith("/auth") ||
-            path.startsWith("/v3/api-docs") ||
-            path.startsWith("/swagger-ui") ||
-            path.startsWith("/actuator")) {
+        if (path != null && (path.startsWith("/auth")
+                || path.startsWith("/v3/api-docs")
+                || path.startsWith("/swagger-ui")
+                || path.startsWith("/actuator"))) {
             chain.doFilter(request, response);
             return;
         }
@@ -99,9 +99,11 @@ public class JwtFilter extends OncePerRequestFilter {
                         new UsernamePasswordAuthenticationToken(
                                 user.getLogin(),
                                 null,
-                                List.of(new SimpleGrantedAuthority(user.getRole()))
+                                List
+                                .of(new SimpleGrantedAuthority(user.getRole()))
                         );
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                SecurityContextHolder.getContext()
+                    .setAuthentication(authentication);
             });
         }
 

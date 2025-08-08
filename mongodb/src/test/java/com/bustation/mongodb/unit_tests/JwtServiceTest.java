@@ -22,7 +22,7 @@ import io.jsonwebtoken.JwtException;
 @ExtendWith(SpringExtension.class)
 @TestPropertySource(properties = {
     "api.security.token.secret=qAnFM6YvZ8kH+1OovvSgkn8WGbS4eE+4WTv7K/79pYE=",
-    "jwt.expiration=3600000" // 1 hora
+    "jwt.expiration=3600000"
 })
 class JwtServiceTest {
 
