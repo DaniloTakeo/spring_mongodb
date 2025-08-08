@@ -1,5 +1,6 @@
 package com.bustation.mongodb.mapper;
 
+import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -46,5 +47,15 @@ class OnibusMapperTest {
         assertEquals("Volvo", onibus.getModelo());
         assertEquals("XYZ-5678", onibus.getPlaca());
         assertEquals(42, onibus.getCapacidade());
+    }
+    
+    @Test
+    void deveRetornarNullAoConverterReservaNulaParaDTO() {
+        assertNull(mapper.toDTO(null));
+    }
+
+    @Test
+    void deveRetornarNullAoConverterDTONuloParaReserva() {
+        assertNull(mapper.toEntity(null));
     }
 }

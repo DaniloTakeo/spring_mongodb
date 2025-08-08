@@ -74,8 +74,20 @@ public class JwtFilter extends OncePerRequestFilter {
      */
     @Override
     protected void doFilterInternal(final HttpServletRequest request,
-            final HttpServletResponse response, final FilterChain chain)
+                                    final HttpServletResponse response,
+                                    final FilterChain chain)
             throws ServletException, IOException {
+
+        String path = request.getServletPath();
+
+        if (path.startsWith("/auth") ||
+            path.startsWith("/v3/api-docs") ||
+            path.startsWith("/swagger-ui") ||
+            path.startsWith("/actuator")) {
+            chain.doFilter(request, response);
+            return;
+        }
+
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
@@ -85,12 +97,11 @@ public class JwtFilter extends OncePerRequestFilter {
             usuarioRepository.findByLogin(login).ifPresent(user -> {
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
-                        user.getLogin(),
-                        null,
-                        List.of(new SimpleGrantedAuthority(user.getRole()))
-                );
-                SecurityContextHolder.getContext()
-                    .setAuthentication(authentication);
+                                user.getLogin(),
+                                null,
+                                List.of(new SimpleGrantedAuthority(user.getRole()))
+                        );
+                SecurityContextHolder.getContext().setAuthentication(authentication);
             });
         }
 
