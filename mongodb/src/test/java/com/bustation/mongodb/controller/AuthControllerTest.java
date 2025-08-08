@@ -15,9 +15,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.bustation.mongodb.config.security.SecurityConfig;
+import com.bustation.mongodb.config.security.SecurityConfigTestProfile;
 import com.bustation.mongodb.dto.LoginDTO;
 import com.bustation.mongodb.dto.RegisterDTO;
 import com.bustation.mongodb.model.Usuario;
@@ -26,9 +27,10 @@ import com.bustation.mongodb.service.AuthService;
 import com.bustation.mongodb.service.JwtService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@Import(SecurityConfig.class)
+@Import(SecurityConfigTestProfile.class)
 @WebMvcTest(AuthController.class)
 @SuppressWarnings("removal")
+@ActiveProfiles("test")
 class AuthControllerTest {
 
     @Autowired
