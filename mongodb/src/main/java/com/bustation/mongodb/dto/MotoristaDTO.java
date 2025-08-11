@@ -36,7 +36,7 @@ public record MotoristaDTO(
     @Pattern(
         regexp = "^[ABCDE]$",
         message = "A categoria da CNH deve ser uma das "
-        		+ "seguintes: A, B, C, D ou E"
+                + "seguintes: A, B, C, D ou E"
     )
     String categoria
 
