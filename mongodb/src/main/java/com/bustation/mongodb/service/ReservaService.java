@@ -90,7 +90,8 @@ public class ReservaService {
      */
     public void delete(final String id) {
         if (!repository.existsById(id)) {
-            throw new RuntimeException("Reserva não encontrada com id: " + id);
+            throw new ResourceNotFoundException("Reserva não "
+                     + "encontrada com id: " + id);
         }
         repository.deleteById(id);
     }
