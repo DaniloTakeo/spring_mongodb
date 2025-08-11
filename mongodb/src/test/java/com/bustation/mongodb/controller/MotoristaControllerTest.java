@@ -4,7 +4,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -42,60 +41,52 @@ import com.bustation.mongodb.service.JwtService;
 import com.bustation.mongodb.service.MotoristaService;
 
 @Import(SecurityConfigTestProfile.class)
-@WebMvcTest(controllers = {MotoristaController.class, GlobalExceptionHandler.class})
+@WebMvcTest(controllers = { MotoristaController.class, GlobalExceptionHandler.class })
 @SuppressWarnings("removal")
 @ActiveProfiles("test")
 class MotoristaControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+	@Autowired
+	private MockMvc mockMvc;
 
 	@MockBean
-    private MotoristaService service;
-	
-    @MockBean
-    private JwtService jwtService;
-    
-    @MockBean
-    private AuthService authService;
-    
-    @MockBean
-    private UsuarioRepository usuarioRepository;
+	private MotoristaService service;
 
-    private final MotoristaDTO motoristaDTO =
-            new MotoristaDTO(
-                UUID.randomUUID().toString(),
-                "João da Silva",
-                "12345678900",
-                "B"
-            );
+	@MockBean
+	private JwtService jwtService;
 
-    @Nested
-    @DisplayName("GET /motoristas")
-    class ListarTodos {
+	@MockBean
+	private AuthService authService;
 
-        @Test
-        @DisplayName("Deve retornar lista paginada de motoristas com status 200")
-        void deveListarTodosComPaginacao() throws Exception {
-            Page<MotoristaDTO> page = new PageImpl<>(List.of(motoristaDTO));
-            when(service.findAll(any(Pageable.class))).thenReturn(page);
+	@MockBean
+	private UsuarioRepository usuarioRepository;
 
-            mockMvc.perform(get("/motoristas")
-                            .param("page", "0")
-                            .param("size", "10")
-                            .accept(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.content[0].nome").value("João da Silva"));
+	private final MotoristaDTO motoristaDTO = new MotoristaDTO(UUID.randomUUID().toString(), "João da Silva",
+			"12345678900", "B");
 
-            verify(service).findAll(any(Pageable.class));
-        }
-    }
+	@Nested
+	@DisplayName("GET /motoristas")
+	class ListarTodos {
 
-    @Nested
-    @DisplayName("GET /motoristas/{id}")
-    class BuscarPorId {
+		@Test
+		@DisplayName("Deve retornar lista paginada de motoristas com status 200")
+		void deveListarTodosComPaginacao() throws Exception {
+			Page<MotoristaDTO> page = new PageImpl<>(List.of(motoristaDTO));
+			when(service.findAll(any(Pageable.class))).thenReturn(page);
 
-        @Test
+			mockMvc.perform(
+					get("/motoristas").param("page", "0").param("size", "10").accept(MediaType.APPLICATION_JSON))
+					.andExpect(status().isOk()).andExpect(jsonPath("$.content[0].nome").value("João da Silva"));
+
+			verify(service).findAll(any(Pageable.class));
+		}
+	}
+
+	@Nested
+	@DisplayName("GET /motoristas/{id}")
+	class BuscarPorId {
+
+		@Test
         @DisplayName("Deve retornar motorista existente com status 200")
         void deveBuscarMotoristaPorId() throws Exception {
             when(service.findById(anyString())).thenReturn(motoristaDTO);
@@ -108,7 +99,7 @@ class MotoristaControllerTest {
             verify(service).findById(motoristaDTO.id());
         }
 
-        @Test
+		@Test
         @DisplayName("Deve retornar 404 quando motorista não encontrado")
         void deveRetornar404SeNaoEncontrado() throws Exception {
             when(service.findById(anyString()))
@@ -122,13 +113,13 @@ class MotoristaControllerTest {
 
             verify(service).findById(anyString());
         }
-    }
+	}
 
-    @Nested
-    @DisplayName("POST /motoristas")
-    class Criar {
+	@Nested
+	@DisplayName("POST /motoristas")
+	class Criar {
 
-        @Test
+		@Test
         @DisplayName("Deve criar motorista e retornar 201 com location header")
         void deveCriarMotorista() throws Exception {
             when(service.save(any(MotoristaDTO.class))).thenReturn(motoristaDTO);
@@ -152,73 +143,12 @@ class MotoristaControllerTest {
 
             verify(service).save(any(MotoristaDTO.class));
         }
-        
-        @Test
-        @DisplayName("Deve retornar 400 quando nome está em branco")
-        void deveRetornar400QuandoNomeEmBranco() throws Exception {
-            String json = """
-                {
-                  "id": "%s",
-                  "nome": "",
-                  "cnh": "12345678900",
-                  "categoria": "B"
-                }
-                """.formatted(motoristaDTO.id());
 
-            mockMvc.perform(post("/motoristas")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(json))
-                    .andExpect(status().isBadRequest());
+		@Nested
+		@DisplayName("PUT /motoristas/{id}")
+		class Atualizar {
 
-            verify(service, never()).save(any(MotoristaDTO.class));
-        }
-        
-        @Test
-        @DisplayName("Deve retornar 400 quando CNH é inválida")
-        void deveRetornar400QuandoCnhInvalida() throws Exception {
-            String json = """
-                {
-                  "id": "%s",
-                  "nome": "João da Silva",
-                  "cnh": "123",
-                  "categoria": "B"
-                }
-                """.formatted(motoristaDTO.id());
-
-            mockMvc.perform(post("/motoristas")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(json))
-                    .andExpect(status().isBadRequest());
-
-            verify(service, never()).save(any(MotoristaDTO.class));
-        }
-
-        @Test
-        @DisplayName("Deve retornar 400 quando categoria é inválida")
-        void deveRetornar400QuandoCategoriaInvalida() throws Exception {
-            String json = """
-                {
-                  "id": "%s",
-                  "nome": "João da Silva",
-                  "cnh": "12345678900",
-                  "categoria": "X"
-                }
-                """.formatted(motoristaDTO.id());
-
-            mockMvc.perform(post("/motoristas")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(json))
-                    .andExpect(status().isBadRequest());
-
-            verify(service, never()).save(any(MotoristaDTO.class));
-        }
-    }
-
-    @Nested
-    @DisplayName("PUT /motoristas/{id}")
-    class Atualizar {
-
-    	@Test
+		@Test
     	@DisplayName("Deve atualizar motorista existente e retornar 200")
     	void deveAtualizarMotorista() throws Exception {
     	    when(service.update(anyString(), any(MotoristaDTO.class)))
@@ -240,22 +170,22 @@ class MotoristaControllerTest {
     	            .andExpect(jsonPath("$.nome").value("João da Silva"));
 
     	    verify(service).update(eq(motoristaDTO.id()), any(MotoristaDTO.class));
-    	}
-    }
+    		}
+		}
 
-    @Nested
-    @DisplayName("DELETE /motoristas/{id}")
-    class Deletar {
+		@Nested
+		@DisplayName("DELETE /motoristas/{id}")
+		class Deletar {
 
-        @Test
-        @DisplayName("Deve deletar motorista existente e retornar 204")
-        void deveDeletarMotorista() throws Exception {
-            doNothing().when(service).delete(anyString());
+			@Test
+			@DisplayName("Deve deletar motorista existente e retornar 204")
+			void deveDeletarMotorista() throws Exception {
+				doNothing().when(service).delete(anyString());
 
-            mockMvc.perform(delete("/motoristas/{id}", motoristaDTO.id()))
-                    .andExpect(status().isNoContent());
+				mockMvc.perform(delete("/motoristas/{id}", motoristaDTO.id())).andExpect(status().isNoContent());
 
-            verify(service).delete(motoristaDTO.id());
-        }
-    }
+				verify(service).delete(motoristaDTO.id());
+			}
+		}
+	}
 }

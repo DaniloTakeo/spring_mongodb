@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.bustation.mongodb.dto.ReservaDTO;
+import com.bustation.mongodb.exception.ResourceNotFoundException;
 import com.bustation.mongodb.mapper.ReservaMapper;
 import com.bustation.mongodb.model.Reserva;
 import com.bustation.mongodb.repository.ReservaRepository;
@@ -51,7 +52,7 @@ public class ReservaService {
      */
     public ReservaDTO findById(final String id) {
         Reserva reserva = repository.findById(id)
-            .orElseThrow(() -> new RuntimeException(
+            .orElseThrow(() -> new ResourceNotFoundException(
                 "Reserva não encontrada com id: " + id));
         return mapper.toDTO(reserva);
     }

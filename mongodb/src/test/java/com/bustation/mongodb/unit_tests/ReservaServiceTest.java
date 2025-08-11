@@ -30,7 +30,7 @@ import com.bustation.mongodb.repository.ReservaRepository;
 import com.bustation.mongodb.service.ReservaService;
 
 @ExtendWith(MockitoExtension.class)
-public class ReservaServiceTest {
+class ReservaServiceTest {
 
     @Mock
     private ReservaRepository repository;

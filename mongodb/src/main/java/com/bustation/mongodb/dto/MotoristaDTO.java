@@ -34,9 +34,8 @@ public record MotoristaDTO(
 
     @NotBlank(message = "A categoria da CNH é obrigatória")
     @Pattern(
-        regexp = "^(A|B|C|D|E)$",
-        message = "A categoria da CNH deve ser uma das seguintes: "
-                + "A, B, C, D ou E"
+        regexp = "^[ABCDE]$",
+        message = "A categoria da CNH deve ser uma das seguintes: A, B, C, D ou E"
     )
     String categoria
 
