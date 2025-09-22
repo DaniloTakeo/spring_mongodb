@@ -15,6 +15,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Filtro que intercepta requisições HTTP para validar o token
@@ -27,7 +28,8 @@ import jakarta.servlet.http.HttpServletResponse;
  * <p>Esse filtro é executado apenas uma vez
  * por requisição {@link OncePerRequestFilter}.
  */
-public class JwtFilter extends OncePerRequestFilter {
+@Slf4j
+public final class JwtFilter extends OncePerRequestFilter {
 
     /**
      * Serviço responsável pela validação do token JWT.
@@ -41,7 +43,7 @@ public class JwtFilter extends OncePerRequestFilter {
     private final UsuarioRepository usuarioRepository;
 
     /**
-     * Posição do ínicio do token no cabeçalho Authorization.
+     * Posição do início do token no cabeçalho Authorization.
      */
     private static final int TOKEN_POSITION = 7;
 
@@ -53,25 +55,11 @@ public class JwtFilter extends OncePerRequestFilter {
      * @param pUsuarioRepository   o repositório de usuários
      */
     public JwtFilter(final JwtService pJwtService,
-            final UsuarioRepository pUsuarioRepository) {
+                     final UsuarioRepository pUsuarioRepository) {
         this.jwtService = pJwtService;
         this.usuarioRepository = pUsuarioRepository;
     }
 
-    /**
-     * Intercepta requisições HTTP para extrair e validar o token JWT.
-     *
-     * <p>Se o token estiver presente no cabeçalho Authorization e for válido,
-     * o usuário correspondente será autenticado no contexto de segurança.
-     *
-     * @param request   a requisição HTTP recebida
-     * @param response  a resposta HTTP que será enviada
-     * @param chain     o filtro encadeado para continuar o processamento
-     * da requisição
-     * @throws ServletException se ocorrer erro durante
-     * o processamento do filtro
-     * @throws IOException      se ocorrer erro de entrada/saída
-     */
     @Override
     protected void doFilterInternal(final HttpServletRequest request,
                                     final HttpServletResponse response,
@@ -84,6 +72,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 || path.startsWith("/v3/api-docs")
                 || path.startsWith("/swagger-ui")
                 || path.startsWith("/actuator"))) {
+            log.debug("Ignorando filtro JWT para o path: {}", path);
             chain.doFilter(request, response);
             return;
         }
@@ -91,20 +80,37 @@ public class JwtFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(TOKEN_POSITION);
-            String login = jwtService.validarToken(token);
+            log.debug("Cabeçalho Authorization presente. "
+                    + "Iniciando validação do token.");
 
-            usuarioRepository.findByLogin(login).ifPresent(user -> {
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(
-                                user.getLogin(),
-                                null,
-                                List
-                                .of(new SimpleGrantedAuthority(user.getRole()))
-                        );
-                SecurityContextHolder.getContext()
-                    .setAuthentication(authentication);
-            });
+            try {
+                String token = authHeader.substring(TOKEN_POSITION);
+                String login = jwtService.validarToken(token);
+
+                usuarioRepository.findByLogin(login)
+                .ifPresentOrElse(user -> {
+                    UsernamePasswordAuthenticationToken
+                        authentication =
+                            new UsernamePasswordAuthenticationToken(
+                                    user.getLogin(),
+                                    null,
+                                    List.of(new SimpleGrantedAuthority(user
+                                            .getRole()))
+                            );
+                    SecurityContextHolder.getContext()
+                        .setAuthentication(authentication);
+                    log.info("Usuário autenticado com sucesso. Login: {}", user
+                            .getLogin());
+                }, () -> {
+                    log.warn("Usuário não encontrado para login "
+                            + "extraído do token.");
+                });
+
+            } catch (Exception e) {
+                log.error("Erro durante a validação do token JWT", e);
+            }
+        } else {
+            log.debug("Cabeçalho Authorization ausente ou inválido.");
         }
 
         chain.doFilter(request, response);
