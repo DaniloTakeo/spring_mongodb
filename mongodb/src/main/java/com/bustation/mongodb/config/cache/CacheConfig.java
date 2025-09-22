@@ -11,11 +11,14 @@ import org.springframework.data.redis.serializer.RedisSerializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Configuração de cache para a aplicação, utilizando Redis como provedor.
  * Define o tempo de vida padrão dos itens no cache e a serialização.
  */
 @Configuration
+@Slf4j
 public class CacheConfig {
 
     /**
@@ -32,12 +35,15 @@ public class CacheConfig {
      */
     @Bean
     public RedisCacheConfiguration cacheConfiguration() {
+        log.info("Configurando RedisCache com TTL de {} minutos",
+                CACHE_TTL_MINUTES);
         return RedisCacheConfiguration.defaultCacheConfig()
                 .entryTtl(Duration.ofMinutes(CACHE_TTL_MINUTES))
                 .serializeValuesWith(
                         RedisSerializationContext.SerializationPair
-                        .fromSerializer(
-                                new GenericJackson2JsonRedisSerializer()));
+                                .fromSerializer(
+                                        new
+                                        GenericJackson2JsonRedisSerializer()));
     }
 
     /**
@@ -49,6 +55,7 @@ public class CacheConfig {
      */
     @Bean
     public ObjectMapper objectMapper() {
+        log.debug("Configurando ObjectMapper com suporte a JavaTimeModule");
         final ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         return mapper;
